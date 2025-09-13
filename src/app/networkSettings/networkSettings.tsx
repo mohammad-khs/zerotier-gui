@@ -11,30 +11,28 @@ import NetworkDataFetcher from "@/hooks/NetworkDataFetcher";
 import { useNetworkState } from "@/stores/store";
 import { NetworkData } from "@/types/networkData";
 import { FC, useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 const NetworkSettingsSection: FC = () => {
   const { networkData, setNetworkData, updateNetworkData } = useNetworkState();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  const API_URL = "http://5.57.32.82:8080/controller/network/fc796798fac7d37c";
+  const API_URL = `http://5.57.32.82:8080/controller/network/${process.env.NEXT_PUBLIC_NETWORK_ID}`;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
     try {
       const result = await NetworkDataFetcher();
       if (typeof result === "string") {
-        setError(result);
+        toast.error(result);
         setNetworkData(null);
       } else {
         setNetworkData(result);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load data");
+      toast.error("An unexpected error occurred while fetching data.");
     } finally {
       setLoading(false);
     }
@@ -53,15 +51,17 @@ const NetworkSettingsSection: FC = () => {
     updateNetworkData({ [key]: value });
   };
 
-  const updateArrayItem = <T,>(arr: T[] | undefined, index: number, value: T): T[] => {
+  const updateArrayItem = <T,>(
+    arr: T[] | undefined,
+    index: number,
+    value: T
+  ): T[] => {
     return (arr || []).map((item, i) => (i === index ? value : item));
   };
 
   const sendData = useCallback(async () => {
     if (!networkData) return;
     setSaving(true);
-    setError(null);
-    setSuccess(null);
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -70,21 +70,25 @@ const NetworkSettingsSection: FC = () => {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      setSuccess("Saved successfully");
+      toast.success("Network settings saved successfully!");
       setNetworkData(json);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save");
+      toast.error("Failed to save network settings.");
     } finally {
       setSaving(false);
     }
   }, [networkData, setNetworkData]);
 
   if (!networkData && loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="transition-all animate-spin h-20 w-20" />
+      </div>
+    );
   }
 
   if (!networkData && !loading) {
-    return <div>No data available</div>;
+    return <div className="text-yellow-500 text-2xl">No data available...</div>;
   }
 
   return (
@@ -99,23 +103,14 @@ const NetworkSettingsSection: FC = () => {
         >
           {loading ? "Refreshing..." : "Refresh"}
         </Button>
-        <Button
-          onClick={sendData}
-          disabled={saving || loading || !networkData}
-        >
+        <Button onClick={sendData} disabled={saving || loading || !networkData}>
           {saving ? "Saving..." : "Save"}
         </Button>
       </div>
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {success && <div className="text-green-500 mb-4">{success}</div>}
-
       {networkData && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <BasicsSection
-            networkData={networkData}
-            updateField={updateField}
-          />
+          <BasicsSection networkData={networkData} updateField={updateField} />
           <AddressingSection
             networkData={networkData}
             updateField={updateField}
@@ -146,4 +141,3 @@ const NetworkSettingsSection: FC = () => {
 };
 
 export default NetworkSettingsSection;
-

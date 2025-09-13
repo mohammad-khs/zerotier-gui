@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeProvider } from "@/hooks/theme-provider";
 import { ModeToggler } from "@/components/mode-toggler";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Toaster position="top-center" />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
