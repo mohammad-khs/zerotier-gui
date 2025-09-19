@@ -7,42 +7,28 @@ import RulesSection from "./components/RulesSection";
 import AdvancedSection from "./components/AdvancedSection";
 import IdentifiersSection from "./components/IdentifiersSection";
 import AuthSection from "./components/AuthSection";
-import NetworkDataFetcher from "@/hooks/NetworkDataFetcher";
 import { useNetworkState } from "@/stores/store";
 import { NetworkData } from "@/types/networkData";
 import { FC, useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Loader2 } from "lucide-react";
 
-const NetworkSettingsSection: FC = () => {
+
+interface NetworkSettingsSectionProps {
+  fetchedNetworkData: NetworkData;
+}
+
+const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({
+  fetchedNetworkData,
+}) => {
   const { networkData, setNetworkData, updateNetworkData } = useNetworkState();
-  const [loading, setLoading] = useState(false);
+
   const [saving, setSaving] = useState(false);
 
   const API_URL = `http://5.57.32.82:8080/controller/network/${process.env.NEXT_PUBLIC_NETWORK_ID}`;
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await NetworkDataFetcher();
-      if (typeof result === "string") {
-        toast.error(result);
-        setNetworkData(null);
-      } else {
-        setNetworkData(result);
-      }
-    } catch (e) {
-      toast.error("An unexpected error occurred while fetching data.");
-    } finally {
-      setLoading(false);
-    }
-  }, [setNetworkData]);
-
   useEffect(() => {
-    if (!networkData) {
-      fetchData();
-    }
-  }, [networkData, fetchData]);
+    setNetworkData(fetchedNetworkData);
+  }, [fetchedNetworkData]);
 
   const updateField = <K extends keyof NetworkData>(
     key: K,
@@ -79,31 +65,13 @@ const NetworkSettingsSection: FC = () => {
     }
   }, [networkData, setNetworkData]);
 
-  if (!networkData && loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="transition-all animate-spin h-20 w-20" />
-      </div>
-    );
-  }
 
-  if (!networkData && !loading) {
-    return <div className="text-yellow-500 text-2xl">No data available...</div>;
-  }
 
   return (
     <div className="container mx-auto my-8 px-4">
       <div className="mb-6 flex items-center gap-3">
         <h1 className="text-4xl">Network Settings</h1>
-        <Button
-          className="ml-auto"
-          variant="outline"
-          onClick={fetchData}
-          disabled={loading || saving}
-        >
-          {loading ? "Refreshing..." : "Refresh"}
-        </Button>
-        <Button onClick={sendData} disabled={saving || loading || !networkData}>
+        <Button onClick={sendData} disabled={saving || !networkData}>
           {saving ? "Saving..." : "Save"}
         </Button>
       </div>

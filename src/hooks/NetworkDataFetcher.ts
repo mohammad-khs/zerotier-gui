@@ -3,9 +3,8 @@ import { NetworkData } from "@/types/networkData";
 const fetchNetworkData = async (): Promise<NetworkData> => {
   const res = await fetch(
     `http://5.57.32.82:8080/controller/network/fc796798fac7d37c`,
-    {
-      method: "GET",
-    }
+
+    { cache: "force-cache", method: "GET" }
   );
   if (!res.ok) {
     throw new Error(`Failed to fetch: ${res.status}`);

@@ -1,30 +1,31 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   AudioWaveform,
   BookOpen,
   Bot,
   Command,
-  Frame,
   GalleryVerticalEnd,
+  HomeIcon,
   Map,
   PieChart,
   Settings2,
   SquareTerminal,
-} from "lucide-react"
+  Users2Icon,
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { title } from "process";
 
 // This is sample data.
 const data = {
@@ -52,101 +53,44 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Home",
+      url: "/",
+      icon: HomeIcon,
       isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
+      title: "Network Settings",
+      url: "network-settings",
+      icon: SquareTerminal,
+      isActive: true,
+    },
+    {
+      title: "Network Members",
+      url: "network-members",
+      icon: Users2Icon,
+      isActive: true,
     },
     {
       title: "Documentation",
       url: "#",
       icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Settings",
       url: "#",
       icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
     },
   ],
   projects: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+      name: "Home",
+      url: "/",
+      icon: PieChart,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Network Settings",
+      url: "network-settings",
+      icon: SquareTerminal,
     },
     {
       name: "Travel",
@@ -154,22 +98,30 @@ const data = {
       icon: Map,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
+    <Sidebar collapsible="icon">
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <SidebarGroup>
+          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {data.navMain.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
-  )
+  );
 }
