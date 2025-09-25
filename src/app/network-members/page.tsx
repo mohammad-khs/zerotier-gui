@@ -1,8 +1,13 @@
 import { FC } from "react";
 import NetworkMembersSection from "./networkMembers";
 import { Member } from "@/types/networkMember";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
 
 const NetworkMembers: FC = async () => {
+  const session = await getServerSession(authOptions);
+  console.log("this is session : ", session);
+
   try {
     const fetchNetWorkMembers = async () => {
       const res = await fetch(

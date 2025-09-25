@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeProvider } from "@/hooks/theme-provider";
 import { ModeToggler } from "@/components/mode-toggler";
 import { Toaster } from "react-hot-toast";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,32 +33,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("");
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster position="top-center" />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <header className="border-b p-4 text-lg font-medium flex h-16 transition-[hight,width]">
-                <SidebarTrigger className="mr-4" />
-                <Separator orientation="vertical" />
-                <div className="ml-4 mr-auto">zerotier-gui</div>
-                <ModeToggler />
-              </header>
-              <div className="m-5">{children}</div>
-            </SidebarInset>
-          </SidebarProvider>
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <header className="border-b p-4 text-lg font-medium flex h-16 transition-[hight,width]">
+                  <SidebarTrigger className="mr-4" />
+                  <Separator orientation="vertical" />
+                  <div className="ml-4 mr-auto">zerotier-gui</div>
+                  <ModeToggler />
+                </header>
+                <div className="m-5">{children}</div>
+              </SidebarInset>
+            </SidebarProvider>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
