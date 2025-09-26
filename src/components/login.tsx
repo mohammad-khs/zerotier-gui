@@ -5,17 +5,26 @@ import { useAuthState } from "@/stores/store";
 import { Button } from "./ui/button";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { authSchema } from "@/lib/validation";
 
 const Login: FC = () => {
   const { username, password, setUsername, setPassword } = useAuthState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  console.log(password);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const parsedResult = authSchema.safeParse({ username, password });
+    if (parsedResult.error) {
+      const errorMessage = parsedResult.error.issues.map(err => err.message).join(', ');
+      toast.error(errorMessage);
+      return;
+    }
     setLoading(true);
     setError("");
+
     try {
       const result = await signIn("credentials", {
         username,
@@ -27,6 +36,7 @@ const Login: FC = () => {
       } else {
         // Successful login, session is set
         toast.success("Login successful");
+        router.refresh();
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -40,11 +50,10 @@ const Login: FC = () => {
       <form
         onSubmit={handleSubmit}
         action="/api/login"
-        className="flex flex-col"
+        className="flex flex-col gap-4 mt-4"
       >
         <Input
-          className="mb-4"
-          placeholder="username..."
+          placeholder="username"
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -55,11 +64,7 @@ const Login: FC = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Button
-          disabled={loading}
-          type="submit"
-          className="mt-4 bg-blue-500 text-white p-2 rounded"
-        >
+        <Button disabled={loading} type="submit" variant={"blue"}>
           {loading ? "Logging in..." : "Login"}
         </Button>
         {error && <p className="text-red-500 mt-2">{error}</p>}

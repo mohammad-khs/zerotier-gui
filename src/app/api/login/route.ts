@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { signupSchema } from "@/lib/validation";
+import { authSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const parsedResult = signupSchema.safeParse(body);
+  const parsedResult = authSchema.safeParse(body);
   if (!parsedResult.success) {
     return NextResponse.json(
       { success: false, errors: parsedResult.error },

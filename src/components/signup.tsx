@@ -3,16 +3,24 @@ import { FC, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useAuthState } from "@/stores/store";
+import toast from "react-hot-toast";
+import { authSchema } from "@/lib/validation";
 
 const SignUp: FC = () => {
   const { username, password, setUsername, setPassword } = useAuthState();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const parsedResult = authSchema.safeParse({ username, password });
+    if (parsedResult.error) {
+      const errorMessage = parsedResult.error.issues
+        .map((err) => err.message)
+        .join(", ");
+      toast.error(errorMessage);
+      return;
+    }
     setLoading(true);
-    setMessage("");
 
     try {
       const response = await fetch("/api/signup", {
@@ -26,46 +34,41 @@ const SignUp: FC = () => {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setMessage(
-          data.error || JSON.stringify(data.errors) || "Signup failed"
-        );
+        toast.error(data.errors);
         setLoading(false);
         return;
       }
-
-      setMessage(`Signup successful! Welcome, ${data.user.username}`);
+      toast.success(`Signup successful! Welcome, ${data.user}`);
     } catch (error) {
       console.error("There was a problem with the signup request:", error);
-      setMessage("Network error during signup");
+      toast.error("Network error during signup");
     }
 
     setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80">
+    <form onSubmit={handleSubmit} className="flex flex-col  gap-4 mt-4">
       <Input
-        placeholder="Username"
+        placeholder="username"
         type="text"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="p-2 border rounded"
       />
       <Input
         placeholder="Password"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="p-2 border rounded"
       />
       <Button
         disabled={loading}
         type="submit"
-        className="mt-2 bg-green-500 text-white p-2 rounded"
+        variant={"blue"}
+        className="bg-green-600 hover:bg-green-500"
       >
         {loading ? "Signing Up..." : "Sign Up"}
       </Button>
-      {message && <p className="text-sm text-red-500 mt-2">{message}</p>}
     </form>
   );
 };
