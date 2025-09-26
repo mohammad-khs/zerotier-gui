@@ -1,17 +1,30 @@
 import { FC } from "react";
-import NetworkMembersSection from "./networkMembers";
+import NetworkMembersSection from "@/app/network/[networkId]/members/networkMembers";
 import { Member } from "@/types/networkMember";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-const NetworkMembers: FC = async () => {
+interface NetworkMembersPageProps {
+  params: {
+    networkId: string;
+  };
+}
+
+const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
   const session = await getServerSession(authOptions);
-  console.log("this is session : ", session);
+  const { networkId } = params;
+
+  console.log(
+    "🔍 DEBUG: Network Members - Using dynamic network ID:",
+    networkId
+  );
 
   try {
     const fetchNetWorkMembers = async () => {
+      console.log("🔍 DEBUG: Fetching members for network:", networkId);
+
       const res = await fetch(
-        `http://5.57.32.82:8080/controller/network/${process.env.NEXT_PUBLIC_NETWORK_ID}/member`,
+        `http://5.57.32.82:8080/controller/network/${networkId}/member`,
         { method: "GET", cache: "no-store" }
       );
       if (!res.ok) {
@@ -25,8 +38,15 @@ const NetworkMembers: FC = async () => {
       memberId: string
     ): Promise<Member | null> => {
       try {
+        console.log(
+          "🔍 DEBUG: Fetching member details for:",
+          memberId,
+          "in network:",
+          networkId
+        );
+
         const res = await fetch(
-          `http://5.57.32.82:8080/controller/network/${process.env.NEXT_PUBLIC_NETWORK_ID}/member/${memberId}`,
+          `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
           { method: "GET", cache: "no-store" }
         );
         if (!res.ok) {
@@ -41,7 +61,6 @@ const NetworkMembers: FC = async () => {
     };
 
     const networkMembers = await fetchNetWorkMembers();
-    console.log(networkMembers);
 
     const memberIds = Object.keys(networkMembers);
     const memberDetailsPromises = memberIds.map((id) => fetchMemberDetails(id));
@@ -50,16 +69,26 @@ const NetworkMembers: FC = async () => {
       (detail) => detail !== null
     );
 
-    return <NetworkMembersSection members={memberDetails} />;
+    return (
+      <div>
+        <div className="mb-4 p-3 bg-blue-100 border border-blue-400 rounded">
+          <p className="text-sm text-blue-800">
+            🔍 DEBUG: Now using dynamic network ID:{" "}
+            <span className="font-mono">{networkId}</span>
+          </p>
+        </div>
+        <NetworkMembersSection members={memberDetails} />
+      </div>
+    );
   } catch (error) {
     console.error("Error loading network members:", error);
     return (
       <div>
-        <h2>Error loading network members</h2>
+        <h2>Error loading network members for network: {networkId}</h2>
         <p>{error instanceof Error ? error.message : "Unknown error"}</p>
       </div>
     );
   }
 };
 
-export default NetworkMembers;
+export default NetworkMembersPage;

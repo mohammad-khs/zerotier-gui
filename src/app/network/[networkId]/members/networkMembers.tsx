@@ -6,7 +6,6 @@ interface NetworkMembersSectionProps {
 }
 
 const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({ members }) => {
-  console.log(members);
 
   return (
     <div className="p-4">

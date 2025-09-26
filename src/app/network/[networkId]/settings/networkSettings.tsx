@@ -12,19 +12,19 @@ import { NetworkData } from "@/types/networkData";
 import { FC, useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-
 interface NetworkSettingsSectionProps {
   fetchedNetworkData: NetworkData;
+  networkId: string
 }
 
-const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({
+const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({networkId,
   fetchedNetworkData,
 }) => {
   const { networkData, setNetworkData, updateNetworkData } = useNetworkState();
 
   const [saving, setSaving] = useState(false);
 
-  const API_URL = `http://5.57.32.82:8080/controller/network/${process.env.NEXT_PUBLIC_NETWORK_ID}`;
+  const API_URL = `http://5.57.32.82:8080/controller/network/${networkId}`;
 
   useEffect(() => {
     setNetworkData(fetchedNetworkData);
@@ -64,8 +64,6 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({
       setSaving(false);
     }
   }, [networkData, setNetworkData]);
-
-
 
   return (
     <div className="container mx-auto my-8 px-4">
