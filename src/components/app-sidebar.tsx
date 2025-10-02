@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useSelectedNetwork } from "@/stores/store";
 
 // Extract network ID from current path
 const getNetworkIdFromPath = (pathname: string): string | null => {
@@ -94,7 +94,10 @@ const getNavData = (currentNetworkId: string | null) => {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const currentNetworkId = getNetworkIdFromPath(pathname);
+  const { selectedNetworkId } = useSelectedNetwork();
+  const currentNetworkId =
+    getNetworkIdFromPath(pathname) ||
+    (pathname === "/" ? selectedNetworkId : null);
   const data = getNavData(currentNetworkId);
 
   return (

@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import NetworkList from "../components/NetworkList";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -24,35 +23,7 @@ export default async function Home() {
         </h1>
         <div>You are logged in.</div>
 
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-4">Available Networks:</h2>
-          <div className="space-y-3">
-            {networkList.map((network, key) => (
-              <div
-                key={key}
-                className="flex items-center justify-between dark:hover:bg-input/50 p-4 border rounded-lg hover:bg-gray-50"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="font-mono text-sm bg-gray-100 dark:bg-input/30 dark:hover:bg-input/50  px-2 py-1 rounded">
-                    {network}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Link href={`/network/${network}/members`}>
-                    <Button variant="outline" size="sm">
-                      View Members
-                    </Button>
-                  </Link>
-                  <Link href={`/network/${network}/settings`}>
-                    <Button variant="outline" size="sm">
-                      Settings
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <NetworkList networkList={networkList} />
       </main>
     );
   }

@@ -31,3 +31,11 @@ export const useAuthState = create<{
     })),
 }));
 
+export const useSelectedNetwork = create<{
+  selectedNetworkId: string | null;
+  setSelectedNetworkId: (networkId: string | null) => void;
+}>((set) => ({
+  selectedNetworkId: null,
+  setSelectedNetworkId: (selectedNetworkId: string | null) =>
+    set(() => ({ selectedNetworkId })),
+}));
