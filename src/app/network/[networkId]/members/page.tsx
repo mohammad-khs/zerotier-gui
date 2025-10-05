@@ -77,7 +77,7 @@ const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
             <span className="font-mono">{networkId}</span>
           </p>
         </div>
-        <NetworkMembersSection members={memberDetails} />
+        <NetworkMembersSection members={memberDetails} networkId={networkId} />
       </div>
     );
   } catch (error) {
