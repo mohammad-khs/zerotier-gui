@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { useSession } from "next-auth/react";
 
 interface NetworkMembersSectionProps {
   members: Member[];
@@ -16,6 +17,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
   members,
   networkId,
 }) => {
+  const { data } = useSession();
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
   const handleDeleteMember = async (memberId: string) => {
@@ -36,35 +38,31 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
     }
   };
 
-  const handleAuthoirzed = async (checked: boolean, memberId: string) => {
+  const handleAuthorized = async (checked: boolean, memberId: string) => {
     try {
-      if (checked) {
-        const res = await fetch(
-          `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
-          {
-            method: "POST",
+      const res = await fetch(
+        `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            authorized: checked, 
+          }),
+        }
+      );
 
-            headers: { "Content-Type": "application/json" },
-          }
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(
+          `Failed to authorize member: ${res.status} - ${errorText}`
         );
-        if (!res.ok) {
-          throw new Error(`Failed to delete member ${res.status}`);
-        }
-      } else {
-        const res = await fetch(
-          `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        if (!res.ok) {
-          throw new Error(`Failed to delete member ${res.status}`);
-        }
       }
+
       router.refresh();
     } catch (error) {
-      console.error("fetch failed");
+      console.error("fetch failed:", error);
     }
   };
 
@@ -98,7 +96,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
                     checked={member.authorized}
                     value={member.authorized ? "on" : "off"}
                     onChange={(e) =>
-                      handleAuthoirzed(e.target.checked, member.id)
+                      handleAuthorized(e.target.checked, member.id)
                     }
                     type="checkbox"
                   />
