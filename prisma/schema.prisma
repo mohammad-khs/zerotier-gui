@@ -15,7 +15,23 @@ datasource db {
 }
 
 model User {
-  id String  @id @default(uuid())
+  id       String @id @default(uuid())
   username String @unique
-  password String  
+  password String
+}
+
+model Member {
+  id          String  @id @default(uuid())
+  memberId    String
+  name        String?
+  description String?
+  networkId   String
+  network     Network @relation(fields: [networkId], references: [networkId], onDelete: Cascade)
+
+  @@unique([memberId, networkId])
+}
+
+model Network {
+  networkId String   @id
+  members   Member[]
 }

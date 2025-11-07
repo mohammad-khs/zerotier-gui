@@ -63,6 +63,7 @@ export default function NetworkList({ networkList }: NetworkListProps) {
       if (!res.ok) throw new Error(`Failed to delete network ${res.status}`);
       setIsLoading(false);
       setIsOpen(false);
+      setSelectedNetworkId("");
       router.refresh();
     } catch (error) {
       toast.error(
