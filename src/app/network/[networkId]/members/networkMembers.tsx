@@ -71,7 +71,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
           setEditData({
             name: local.name ?? (member as any).name ?? "",
             description: local.description ?? (member as any).description ?? "",
-            ipAssignments: (member.ipAssignments || []).join(", "),
+            ipList: (member.ipAssignments || []),
             authorized: !!member.authorized,
           });
         } else {
@@ -79,7 +79,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
           setEditData({
             name: (member as any).name ?? "",
             description: (member as any).description ?? "",
-            ipAssignments: (member.ipAssignments || []).join(", "),
+            ipList: (member.ipAssignments || []),
             authorized: !!member.authorized,
           });
         }
@@ -87,7 +87,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
         setEditData({
           name: (member as any).name ?? "",
           description: (member as any).description ?? "",
-          ipAssignments: (member.ipAssignments || []).join(", "),
+          ipList: (member.ipAssignments || []),
           authorized: !!member.authorized,
         });
       }

@@ -54,6 +54,39 @@ export async function POST(
 
     const { name, description, ipAssignments, authorized } = member.data;
 
+    // Validate: if ipAssignments provided, check that none are already assigned to other members in this network
+    if (ipAssignments && ipAssignments.length > 0) {
+      const existingMembers = await prisma.member.findMany({
+        where: {
+          networkId,
+          memberId: { not: memberId }, // exclude current member
+        },
+        select: { memberId: true },
+      });
+      // Build a set of IPs assigned to other members by querying the controller
+      const usedIps = new Set<string>();
+      for (const m of existingMembers) {
+        try {
+          const resp = await fetch(
+            `http://5.57.32.82:8080/controller/network/${networkId}/member/${m.memberId}`
+          ).then((r) => r.json().catch(() => null));
+          if (resp?.ipAssignments) {
+            resp.ipAssignments.forEach((ip: string) => usedIps.add(ip));
+          }
+        } catch (e) {
+          // silently skip on fetch error
+        }
+      }
+      // Check if any IP being assigned is already in use
+      const conflictingIps = ipAssignments.filter((ip: string) => usedIps.has(ip));
+      if (conflictingIps.length > 0) {
+        return NextResponse.json(
+          { error: `IP(s) already assigned to another member: ${conflictingIps.join(", ")}` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Build controller body including only provided fields
     const bodyForZeroDB: any = {};
     if (typeof ipAssignments !== "undefined")

@@ -42,13 +42,11 @@ const EditMember: FC<EditMemberProps> = ({
         body.description = editData.description.trim();
       }
 
-      // ipAssignments: parse only if provided (non-empty string)
-      const rawIps = (editData.ipAssignments ?? "").toString().trim();
-      if (rawIps !== "") {
-        const ips = rawIps
-          .split(",")
-          .map((s: string) => s.trim())
-          .filter((s: string) => s.length > 0);
+      // ipAssignments: take from ipList array and filter out empty strings
+      const ips = (editData.ipList || [])
+        .map((ip: string) => (ip ?? "").toString().trim())
+        .filter((ip: string) => ip.length > 0);
+      if (ips.length > 0) {
         // simple validation for IPv4/CIDR-like entries (basic)
         const invalid = ips.filter((ip: string) => {
           return !/^\d{1,3}(?:\.\d{1,3}){3}(?:\/\d{1,2})?$/.test(ip);
@@ -139,14 +137,54 @@ const EditMember: FC<EditMemberProps> = ({
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm mb-1">IP Assignments</label>
-                <Input
-                  name="ipAssignments"
-                  value={editData?.ipAssignments ?? ""}
-                  onChange={handleEditChange}
-                  placeholder="Comma separated, e.g. 192.168.191.1/24"
-                />
+                <div className="space-y-2">
+                  {(editData?.ipList || []).map((ip: string, ipIdx: number) => (
+                    <div key={ipIdx} className="flex gap-2 items-center">
+                      <Input
+                        value={ip}
+                        onChange={(e) => {
+                          const newList = [...(editData.ipList || [])];
+                          newList[ipIdx] = e.target.value;
+                          setEditData((prev: any) => ({
+                            ...prev,
+                            ipList: newList,
+                          }));
+                        }}
+                        placeholder="e.g. 192.168.191.1/24"
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          const newList = editData.ipList.filter(
+                            (_: string, idx: number) => idx !== ipIdx
+                          );
+                          setEditData((prev: any) => ({
+                            ...prev,
+                            ipList: newList,
+                          }));
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditData((prev: any) => ({
+                        ...prev,
+                        ipList: [...(prev.ipList || []), ""],
+                      }));
+                    }}
+                  >
+                    + Add IP
+                  </Button>
+                </div>
                 <p className="text-xs text-gray-600 mt-1">
-                  Enter comma-separated IPs. They will be trimmed on save.
+                  Add or remove IP assignments. Empty IPs will be skipped on save.
                 </p>
               </div>
             </div>

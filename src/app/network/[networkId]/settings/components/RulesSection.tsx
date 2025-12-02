@@ -26,7 +26,7 @@ const RulesSection: FC<RulesSectionProps> = ({
         <div className="space-y-3">
           {(networkData.rules || []).map((rule, i) => (
             <div key={i} className="grid grid-cols-12 gap-2 items-end">
-              <label className="col-span-4 flex items-center gap-2 text-sm">
+              <label className="col-span-3 flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={!!rule.not}
@@ -42,7 +42,7 @@ const RulesSection: FC<RulesSectionProps> = ({
                 />
                 not
               </label>
-              <label className="col-span-4 flex items-center gap-2 text-sm">
+              <label className="col-span-3 flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={!!rule.or}
@@ -72,6 +72,19 @@ const RulesSection: FC<RulesSectionProps> = ({
                   }
                 />
               </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="col-span-2"
+                onClick={() =>
+                  updateField(
+                    "rules",
+                    (networkData.rules || []).filter((_, idx) => idx !== i)
+                  )
+                }
+              >
+                Delete
+              </Button>
             </div>
           ))}
           <Button
@@ -83,6 +96,7 @@ const RulesSection: FC<RulesSectionProps> = ({
                 { not: false, or: false, type: "" },
               ])
             }
+            disabled={(networkData.rules || []).some((r) => !r.type?.trim())}
           >
             + Add rule
           </Button>
