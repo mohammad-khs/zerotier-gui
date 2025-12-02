@@ -9,7 +9,7 @@ interface RulesSectionProps {
     key: K,
     value: NetworkData[K]
   ) => void;
-  updateArrayItem: <T,>(arr: T[] | undefined, index: number, value: T) => T[];
+  updateArrayItem: <T>(arr: T[] | undefined, index: number, value: T) => T[];
 }
 
 const RulesSection: FC<RulesSectionProps> = ({

@@ -64,14 +64,16 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
     setEditingMemberId(member.id);
     (async () => {
       try {
-        const res = await fetch(`/api/network/${networkId}/member/${member.id}`);
+        const res = await fetch(
+          `/api/network/${networkId}/member/${member.id}`
+        );
         if (res.ok) {
           const j = await res.json();
           const local = j?.data ?? {};
           setEditData({
             name: local.name ?? (member as any).name ?? "",
             description: local.description ?? (member as any).description ?? "",
-            ipList: (member.ipAssignments || []),
+            ipList: member.ipAssignments || [],
             authorized: !!member.authorized,
           });
         } else {
@@ -79,7 +81,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
           setEditData({
             name: (member as any).name ?? "",
             description: (member as any).description ?? "",
-            ipList: (member.ipAssignments || []),
+            ipList: member.ipAssignments || [],
             authorized: !!member.authorized,
           });
         }
@@ -87,7 +89,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
         setEditData({
           name: (member as any).name ?? "",
           description: (member as any).description ?? "",
-          ipList: (member.ipAssignments || []),
+          ipList: member.ipAssignments || [],
           authorized: !!member.authorized,
         });
       }

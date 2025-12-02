@@ -78,10 +78,16 @@ export async function POST(
         }
       }
       // Check if any IP being assigned is already in use
-      const conflictingIps = ipAssignments.filter((ip: string) => usedIps.has(ip));
+      const conflictingIps = ipAssignments.filter((ip: string) =>
+        usedIps.has(ip)
+      );
       if (conflictingIps.length > 0) {
         return NextResponse.json(
-          { error: `IP(s) already assigned to another member: ${conflictingIps.join(", ")}` },
+          {
+            error: `IP(s) already assigned to another member: ${conflictingIps.join(
+              ", "
+            )}`,
+          },
           { status: 400 }
         );
       }
@@ -180,6 +186,9 @@ export async function GET(
     return NextResponse.json({ found: true, data: m }, { status: 200 });
   } catch (err) {
     console.error("GET member error:", err);
-    return NextResponse.json({ error: (err as any)?.message || "Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: (err as any)?.message || "Error" },
+      { status: 500 }
+    );
   }
 }

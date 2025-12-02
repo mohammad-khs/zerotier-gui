@@ -184,7 +184,8 @@ const EditMember: FC<EditMemberProps> = ({
                   </Button>
                 </div>
                 <p className="text-xs text-gray-600 mt-1">
-                  Add or remove IP assignments. Empty IPs will be skipped on save.
+                  Add or remove IP assignments. Empty IPs will be skipped on
+                  save.
                 </p>
               </div>
             </div>
