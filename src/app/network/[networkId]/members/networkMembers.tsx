@@ -34,7 +34,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
   const handleAuthorized = async (checked: boolean, memberId: string) => {
     try {
       const res = await fetch(
-        `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
         {
           method: "POST",
           headers: {

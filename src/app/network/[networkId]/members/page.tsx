@@ -16,7 +16,7 @@ const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
     // دریافت تمام اعضا از ZeroTier Controller
     const fetchNetWorkMembers = async () => {
       const res = await fetch(
-        `http://5.57.32.82:8080/controller/network/${networkId}/member`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member`,
         { method: "GET", cache: "no-store" }
       );
       if (!res.ok) throw new Error(`Failed to fetch members: ${res.status}`);
@@ -29,7 +29,7 @@ const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
     ): Promise<Member | null> => {
       try {
         const res = await fetch(
-          `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
           { method: "GET", cache: "no-store" }
         );
         if (!res.ok) throw new Error(`Failed to fetch member ${memberId}`);
@@ -51,15 +51,8 @@ const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
     );
 
     return (
-      <div>
-        <div className="mb-4 p-3 bg-blue-100 border border-blue-400 rounded">
-          <p className="text-sm text-blue-800">
-            🔍 DEBUG: Now using dynamic network ID:{" "}
-            <span className="font-mono">{networkId}</span>
-          </p>
-        </div>
+
         <NetworkMembersSection members={memberDetails} networkId={networkId} />
-      </div>
     );
   } catch (error) {
     console.error("Error loading network members:", error);

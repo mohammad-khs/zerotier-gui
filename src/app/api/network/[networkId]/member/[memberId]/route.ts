@@ -10,7 +10,7 @@ export async function DELETE(
     const { networkId, memberId } = await context.params;
 
     const res = await fetch(
-      `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
       {
         method: "DELETE",
         headers: {
@@ -68,7 +68,7 @@ export async function POST(
       for (const m of existingMembers) {
         try {
           const resp = await fetch(
-            `http://5.57.32.82:8080/controller/network/${networkId}/member/${m.memberId}`
+            `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${m.memberId}`
           ).then((r) => r.json().catch(() => null));
           if (resp?.ipAssignments) {
             resp.ipAssignments.forEach((ip: string) => usedIps.add(ip));
@@ -102,7 +102,7 @@ export async function POST(
 
     // Forward update to controller REST API (use POST to update member)
     const controllerRes = await fetch(
-      `http://5.57.32.82:8080/controller/network/${networkId}/member/${memberId}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
       {
         method: "POST",
         headers: {

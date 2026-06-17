@@ -10,20 +10,13 @@ interface NetworkSettingsPageProps {
 const NetworkSettingsPage = async ({ params }: NetworkSettingsPageProps) => {
   const { networkId } = params;
 
-  console.log(
-    "🔍 DEBUG: Network Settings - Using dynamic network ID:",
-    networkId
-  );
-
   const fetchNetworkData = async () => {
-    console.log("🔍 DEBUG: Fetching network settings for:", networkId);
-
     const res = await fetch(
-      `http://5.57.32.82:8080/controller/network/${networkId}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}`,
       {
         method: "GET",
         cache: "no-store",
-      }
+      },
     );
 
     const networkData: NetworkData = await res.json();
@@ -37,15 +30,10 @@ const NetworkSettingsPage = async ({ params }: NetworkSettingsPageProps) => {
   try {
     const networkData = await fetchNetworkData();
     return (
-      <div>
-        <div className="mb-4 p-3 bg-blue-100 border border-blue-400 rounded">
-          <p className="text-sm text-blue-800">
-            🔍 DEBUG: Now using dynamic network ID:{" "}
-            <span className="font-mono">{networkId}</span>
-          </p>
-        </div>
-        <NetworkSettingsSection networkId={networkId} fetchedNetworkData={networkData} />
-      </div>
+      <NetworkSettingsSection
+        networkId={networkId}
+        fetchedNetworkData={networkData}
+      />
     );
   } catch (error) {
     return (

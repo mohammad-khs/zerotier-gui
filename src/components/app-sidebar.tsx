@@ -73,18 +73,18 @@ const getNavData = (currentNetworkId: string | null) => {
   }
 
   baseNavItems.push(
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      isActive: false,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      isActive: false,
-    }
+    // {
+    //   title: "Documentation",
+    //   url: "#",
+    //   icon: BookOpen,
+    //   isActive: false,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings2,
+    //   isActive: false,
+    // }
   );
 
   return {
@@ -136,15 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {currentNetworkId && (
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <div className="px-2 py-1 text-xs text-muted-foreground">
-                🔍 DEBUG: Using network {currentNetworkId}
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        
       </SidebarContent>
     </Sidebar>
   );

@@ -24,7 +24,7 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({networkId,
 
   const [saving, setSaving] = useState(false);
 
-  const API_URL = `http://5.57.32.82:8080/controller/network/${networkId}`;
+  const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}`;
 
   useEffect(() => {
     setNetworkData(fetchedNetworkData);
