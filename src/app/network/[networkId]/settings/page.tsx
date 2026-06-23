@@ -1,5 +1,7 @@
 import { NetworkData } from "@/types/networkData";
 import NetworkSettingsSection from "@/app/network/[networkId]/settings/networkSettings";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 interface NetworkSettingsPageProps {
   params: {
@@ -8,7 +10,13 @@ interface NetworkSettingsPageProps {
 }
 
 const NetworkSettingsPage = async ({ params }: NetworkSettingsPageProps) => {
-  const { networkId } = params;
+  const { networkId } = await params;
+  const session = await getServerSession(authOptions);
+  const isAuthenticated = session?.user?.id && session?.user?.username;
+
+  if (!isAuthenticated) {
+    return <h1 className="text-2xl">not allowed</h1>;
+  }
 
   const fetchNetworkData = async () => {
     const res = await fetch(

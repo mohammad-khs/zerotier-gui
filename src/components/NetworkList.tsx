@@ -13,11 +13,17 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Users2Icon, SquareTerminal, Trash2Icon } from "lucide-react";
 
 interface NetworkListProps {
   networkList: string[];
 }
+
+type NetworkInfo = {
+  id: string;
+  name?: string | null;
+};
 
 export default function NetworkList({ networkList }: NetworkListProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +31,9 @@ export default function NetworkList({ networkList }: NetworkListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { setSelectedNetworkId } = useSelectedNetwork();
   const router = useRouter();
+  const [networks, setNetworks] = useState<NetworkInfo[]>([]);
+  const [search, setSearch] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
 
   const handleNetworkClick = (network: string) => {
     setSelectedNetworkId(network);
@@ -83,6 +92,52 @@ export default function NetworkList({ networkList }: NetworkListProps) {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      if (!baseUrl) return;
+      try {
+        const results = await Promise.all(
+          networkList.map(async (id) => {
+            try {
+              const res = await fetch(`${baseUrl}/controller/network/${id}`);
+              if (!res.ok) return { id, name: null };
+              const json = await res.json().catch(() => null);
+              // try common shapes, fallback to id
+              const name =
+                json?.name ?? json?.config?.name ?? json?.network?.name ?? null;
+              return { id, name } as NetworkInfo;
+            } catch (e) {
+              return { id, name: null } as NetworkInfo;
+            }
+          }),
+        );
+        if (mounted) setNetworks(results);
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [networkList]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = networks.slice();
+    if (q) {
+      return list.filter((n) => (n.name || n.id).toLowerCase().includes(q));
+    }
+    return list.sort((a, b) => {
+      const aKey = (a.name || a.id).toLowerCase();
+      const bKey = (b.name || b.id).toLowerCase();
+      return sortAsc ? aKey.localeCompare(bKey) : bKey.localeCompare(aKey);
+    });
+  }, [networks, search, sortAsc]);
+
   return (
     <div className="mt-6 space-y-6">
       <div className="flex flex-col gap-4 rounded-3xl border border-input bg-card/90 p-6 shadow-sm shadow-black/5 sm:flex-row sm:items-center sm:justify-between">
@@ -95,31 +150,55 @@ export default function NetworkList({ networkList }: NetworkListProps) {
           </h2>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex w-full items-center gap-3 sm:w-auto">
+          <input
+            placeholder="Search by name or id"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-md border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground sm:w-64"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortAsc(!sortAsc)}
+          >
+            {sortAsc ? "A → Z" : "Z → A"}
+          </Button>
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             {isLoading ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
       </div>
 
-      {networkList.length === 0 ? (
+      {networks.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-input bg-muted/10 p-8 text-center text-sm text-muted-foreground">
           No networks available.
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {networkList.map((network) => (
+          {filtered.map((network) => (
             <div
-              key={network}
+              key={network.id}
               className="rounded-3xl border border-input bg-background p-4 shadow-sm shadow-black/5 transition hover:-translate-y-0.5 hover:border-primary/50"
             >
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                    Network ID
+                    {network.name ? "Network" : "Network ID"}
                   </p>
-                  <p className="mt-2 font-mono text-sm text-foreground">
-                    {network}
+                  <p className="mt-2 text-sm text-foreground">
+                    {network.name ? (
+                      <span className="font-medium">{network.name}</span>
+                    ) : null}
+                    <span
+                      className={
+                        network.name
+                          ? "ml-2 font-mono text-sm text-muted-foreground"
+                          : "font-mono text-sm text-foreground"
+                      }
+                    >
+                      {network.id}
+                    </span>
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -127,7 +206,7 @@ export default function NetworkList({ networkList }: NetworkListProps) {
                     size="icon"
                     variant="ghost"
                     onClick={() => {
-                      navigator.clipboard.writeText(network);
+                      navigator.clipboard.writeText(network.id);
                       toast.success("Network ID copied");
                     }}
                   >
@@ -136,36 +215,42 @@ export default function NetworkList({ networkList }: NetworkListProps) {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link href={`/network/${network}/members`}>
+              <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+                <Link href={`/network/${network.id}/members`}>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleNetworkClick(network)}
+                    onClick={() => handleNetworkClick(network.id)}
+                    title="Members"
                   >
-                    Members
+                    <Users2Icon className="h-4 w-4" />
+                    <span className="hidden md:inline ml-2">Members</span>
                   </Button>
                 </Link>
 
-                <Link href={`/network/${network}/settings`}>
+                <Link href={`/network/${network.id}/settings`}>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleNetworkClick(network)}
+                    onClick={() => handleNetworkClick(network.id)}
+                    title="Settings"
                   >
-                    Settings
+                    <SquareTerminal className="h-4 w-4" />
+                    <span className="hidden md:inline ml-2">Settings</span>
                   </Button>
                 </Link>
 
                 <Button
                   onClick={() => {
-                    setDialogNetworkId(network);
+                    setDialogNetworkId(network.id);
                     setIsOpen(true);
                   }}
                   variant="destructive"
                   size="sm"
+                  title="Delete"
                 >
-                  Delete
+                  <Trash2Icon className="h-4 w-4" />
+                  <span className="hidden md:inline ml-2">Delete</span>
                 </Button>
               </div>
             </div>

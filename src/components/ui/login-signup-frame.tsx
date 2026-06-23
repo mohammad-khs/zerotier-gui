@@ -1,7 +1,6 @@
 "use client";
 import { FC } from "react";
 import Login from "../login";
-import SignUp from "../signup";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 import {
   Dialog,
@@ -16,9 +15,24 @@ import { signOut } from "next-auth/react";
 
 interface LoginSignupFrameProps {
   session?: Session | null;
+  size?: "default" | "lg" | "sm";
+  text?: string;
+  variant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "blue";
 }
 
-const LoginSignupFrame: FC<LoginSignupFrameProps> = ({ session }) => {
+const LoginSignupFrame: FC<LoginSignupFrameProps> = ({
+  session,
+  size = "sm",
+  text = "Login",
+  variant = "outline",
+}) => {
   if (session) {
     return (
       <Button
@@ -26,7 +40,6 @@ const LoginSignupFrame: FC<LoginSignupFrameProps> = ({ session }) => {
         className="mr-2"
         variant={"outline"}
         size={"sm"}
-        
       >
         Logout
       </Button>
@@ -37,8 +50,8 @@ const LoginSignupFrame: FC<LoginSignupFrameProps> = ({ session }) => {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="outline" size={"sm"} className="mr-2">
-            Login / Signup
+          <Button variant={variant} size={size} className="mr-2">
+            {text}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
@@ -47,16 +60,16 @@ const LoginSignupFrame: FC<LoginSignupFrameProps> = ({ session }) => {
               <DialogTitle>
                 <TabsList>
                   <TabsTrigger value="account">Login</TabsTrigger>
-                  <TabsTrigger value="password">Signup</TabsTrigger>
+                  {/* <TabsTrigger value="password">Signup</TabsTrigger> */}
                 </TabsList>
               </DialogTitle>
             </DialogHeader>
             <TabsContent value="account">
               <Login />
             </TabsContent>
-            <TabsContent value="password">
+            {/* <TabsContent value="password">
               <SignUp />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </DialogContent>
       </Dialog>
