@@ -4,7 +4,14 @@ const fetchNetworkData = async (): Promise<NetworkData> => {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/fc796798fac7d37c`,
 
-    { cache: "force-cache", method: "GET" },
+    {
+      cache: "force-cache",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+      },
+    },
   );
   if (!res.ok) {
     throw new Error(`Failed to fetch: ${res.status}`);

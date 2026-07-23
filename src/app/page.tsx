@@ -32,6 +32,10 @@ export default async function Home() {
       }
       const res = await fetch(`${baseUrl}/controller/network`, {
         cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+        },
       });
       if (!res.ok) {
         const body = await res.text();

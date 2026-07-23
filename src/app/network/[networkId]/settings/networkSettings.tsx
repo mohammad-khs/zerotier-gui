@@ -14,10 +14,11 @@ import toast from "react-hot-toast";
 
 interface NetworkSettingsSectionProps {
   fetchedNetworkData: NetworkData;
-  networkId: string
+  networkId: string;
 }
 
-const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({networkId,
+const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({
+  networkId,
   fetchedNetworkData,
 }) => {
   const { networkData, setNetworkData, updateNetworkData } = useNetworkState();
@@ -32,7 +33,7 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({networkId,
 
   const updateField = <K extends keyof NetworkData>(
     key: K,
-    value: NetworkData[K]
+    value: NetworkData[K],
   ) => {
     updateNetworkData({ [key]: value });
   };
@@ -40,7 +41,7 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({networkId,
   const updateArrayItem = <T,>(
     arr: T[] | undefined,
     index: number,
-    value: T
+    value: T,
   ): T[] => {
     return (arr || []).map((item, i) => (i === index ? value : item));
   };
@@ -51,7 +52,10 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({networkId,
     try {
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+        },
         body: JSON.stringify(networkData),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

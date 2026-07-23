@@ -24,6 +24,10 @@ const NetworkSettingsPage = async ({ params }: NetworkSettingsPageProps) => {
       {
         method: "GET",
         cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+        },
       },
     );
 

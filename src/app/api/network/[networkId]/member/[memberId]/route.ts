@@ -4,7 +4,7 @@ import { memberSchima } from "@/lib/validation";
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ networkId: string; memberId: string }> }
+  context: { params: Promise<{ networkId: string; memberId: string }> },
 ) {
   try {
     const { networkId, memberId } = await context.params;
@@ -15,9 +15,9 @@ export async function DELETE(
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          // "Authorization": `Bearer ${process.env.ZEROTIER_TOKEN}`, // در صورت نیاز
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
         },
-      }
+      },
     );
 
     if (!res.ok) {
@@ -30,14 +30,14 @@ export async function DELETE(
     console.error("API route error:", error);
     return NextResponse.json(
       { error: (error as any)?.message || "Failed to delete member" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ networkId: string; memberId: string }> }
+  context: { params: Promise<{ networkId: string; memberId: string }> },
 ) {
   try {
     const { networkId, memberId } = await context.params;
@@ -48,7 +48,7 @@ export async function POST(
     if (!member.success) {
       return NextResponse.json(
         { success: false, errors: member.error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -68,7 +68,13 @@ export async function POST(
       for (const m of existingMembers) {
         try {
           const resp = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${m.memberId}`
+            `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${m.memberId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+              },
+            },
           ).then((r) => r.json().catch(() => null));
           if (resp?.ipAssignments) {
             resp.ipAssignments.forEach((ip: string) => usedIps.add(ip));
@@ -79,16 +85,16 @@ export async function POST(
       }
       // Check if any IP being assigned is already in use
       const conflictingIps = ipAssignments.filter((ip: string) =>
-        usedIps.has(ip)
+        usedIps.has(ip),
       );
       if (conflictingIps.length > 0) {
         return NextResponse.json(
           {
             error: `IP(s) already assigned to another member: ${conflictingIps.join(
-              ", "
+              ", ",
             )}`,
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -107,15 +113,16 @@ export async function POST(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
         },
         body: JSON.stringify(bodyForZeroDB),
-      }
+      },
     );
 
     if (!controllerRes.ok) {
       const errorText = await controllerRes.text();
       throw new Error(
-        `Controller update failed (${controllerRes.status}): ${errorText}`
+        `Controller update failed (${controllerRes.status}): ${errorText}`,
       );
     }
 
@@ -164,20 +171,20 @@ export async function POST(
         message: "Member updated",
         controller: controllerJson,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("POST member error:", error);
     return NextResponse.json(
       { error: (error as any)?.message || "Failed to create member" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ networkId: string; memberId: string }> }
+  context: { params: Promise<{ networkId: string; memberId: string }> },
 ) {
   try {
     const { memberId, networkId } = await context.params;
@@ -188,7 +195,7 @@ export async function GET(
     console.error("GET member error:", err);
     return NextResponse.json(
       { error: (err as any)?.message || "Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

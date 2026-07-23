@@ -56,7 +56,11 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
         `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+          },
+
           body: JSON.stringify({ authorized }),
         },
       );

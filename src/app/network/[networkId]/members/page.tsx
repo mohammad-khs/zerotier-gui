@@ -25,7 +25,14 @@ const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
     const fetchNetWorkMembers = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member`,
-        { method: "GET", cache: "no-store" },
+        {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+          },
+        },
       );
       if (!res.ok) throw new Error(`Failed to fetch members: ${res.status}`);
       return res.json();
@@ -38,7 +45,14 @@ const NetworkMembersPage: FC<NetworkMembersPageProps> = async ({ params }) => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
-          { method: "GET", cache: "no-store" },
+          {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+            },
+          },
         );
         if (!res.ok) throw new Error(`Failed to fetch member ${memberId}`);
         return res.json();

@@ -46,7 +46,10 @@ export default function NetworkList({ networkList }: NetworkListProps) {
       if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
       const res = await fetch(`${baseUrl}/controller/network`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+        },
         body: JSON.stringify({}),
       });
       if (!res.ok) throw new Error(`Failed to create network ${res.status}`);
@@ -69,7 +72,10 @@ export default function NetworkList({ networkList }: NetworkListProps) {
       if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
       const res = await fetch(`${baseUrl}/controller/network/${networkId}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+        },
       });
       if (!res.ok) throw new Error(`Failed to delete network ${res.status}`);
       setIsLoading(false);
@@ -101,7 +107,12 @@ export default function NetworkList({ networkList }: NetworkListProps) {
         const results = await Promise.all(
           networkList.map(async (id) => {
             try {
-              const res = await fetch(`${baseUrl}/controller/network/${id}`);
+              const res = await fetch(`${baseUrl}/controller/network/${id}`, {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+                },
+              });
               if (!res.ok) return { id, name: null };
               const json = await res.json().catch(() => null);
               // try common shapes, fallback to id
