@@ -1,7 +1,7 @@
 "use client";
 
 import React, { FC, useState } from "react";
-import { Member } from "@/types/networkMember";
+import { Member, MemberWithMeta } from "@/types/networkMember";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { EditMemberData } from "./editMember";
 
 interface EditMemberDialogProps {
   open: boolean;
@@ -33,7 +34,7 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
 }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<EditMemberData>(null);
 
   React.useEffect(() => {
     if (member && open) {
@@ -41,30 +42,32 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
       (async () => {
         try {
           const res = await fetch(
-            `/api/network/${networkId}/member/${member.id}`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}/member/${member.id}`,
           );
           if (res.ok) {
             const j = await res.json();
             const local = j?.data ?? {};
             setEditData({
-              name: local.name ?? (member as any).name ?? "",
+              name: local.name ?? (member as MemberWithMeta).name ?? "",
               description:
-                local.description ?? (member as any).description ?? "",
+                local.description ??
+                (member as MemberWithMeta).description ??
+                "",
               ipList: member.ipAssignments || [],
               authorized: !!member.authorized,
             });
           } else {
             setEditData({
-              name: (member as any).name ?? "",
-              description: (member as any).description ?? "",
+              name: (member as MemberWithMeta).name ?? "",
+              description: (member as MemberWithMeta).description ?? "",
               ipList: member.ipAssignments || [],
               authorized: !!member.authorized,
             });
           }
         } catch (err) {
           setEditData({
-            name: (member as any).name ?? "",
-            description: (member as any).description ?? "",
+            name: (member as MemberWithMeta).name ?? "",
+            description: (member as MemberWithMeta).description ?? "",
             ipList: member.ipAssignments || [],
             authorized: !!member.authorized,
           });
@@ -78,7 +81,12 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
     setLoading(true);
 
     try {
-      const body: any = {};
+      const body: {
+        name?: string;
+        description?: string;
+        ipAssignments?: string[];
+        authorized?: boolean;
+      } = {};
 
       if (typeof editData.name === "string" && editData.name.trim() !== "") {
         body.name = editData.name.trim();
@@ -110,11 +118,14 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
         body.authorized = !!editData.authorized;
       }
 
-      const res = await fetch(`/api/network/${networkId}/member/${member.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}/member/${member.id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -132,21 +143,28 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
   };
 
   const handleAddIP = () => {
-    setEditData((prev: any) => ({
-      ...prev,
-      ipList: [...(prev.ipList || []), ""],
-    }));
+    setEditData((prev: EditMemberData | null) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        ipList: [...(prev.ipList || []), ""],
+      };
+    });
   };
 
   const handleRemoveIP = (idx: number) => {
-    setEditData((prev: any) => ({
-      ...prev,
-      ipList: prev.ipList.filter((_: string, i: number) => i !== idx),
-    }));
+    setEditData((prev: EditMemberData | null) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        ipList: prev.ipList.filter((_: string, i: number) => i !== idx),
+      };
+    });
   };
 
   const handleIPChange = (idx: number, value: string) => {
-    setEditData((prev: any) => {
+    setEditData((prev: EditMemberData | null) => {
+      if (!prev) return null;
       const newList = [...prev.ipList];
       newList[idx] = value;
       return { ...prev, ipList: newList };
@@ -187,10 +205,13 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
                 placeholder="e.g. My Laptop"
                 value={editData?.name ?? ""}
                 onChange={(e) =>
-                  setEditData((prev: any) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
+                  setEditData((prev: EditMemberData | null) => {
+                    if (!prev) return null;
+                    return {
+                      ...prev,
+                      name: e.target.value,
+                    };
+                  })
                 }
               />
               <p className="text-xs text-muted-foreground mt-1">
@@ -206,10 +227,13 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
                 placeholder="Optional description about this device..."
                 value={editData?.description ?? ""}
                 onChange={(e) =>
-                  setEditData((prev: any) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
+                  setEditData((prev: EditMemberData | null) => {
+                    if (!prev) return null;
+                    return {
+                      ...prev,
+                      description: e.target.value,
+                    };
+                  })
                 }
                 rows={4}
                 className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -242,7 +266,7 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
 
               <div className="space-y-2">
                 {(editData?.ipList || []).length > 0 ? (
-                  (editData.ipList || []).map((ip: string, idx: number) => (
+                  (editData?.ipList || []).map((ip: string, idx: number) => (
                     <div key={idx} className="flex gap-2 items-center">
                       <Input
                         placeholder="e.g. 192.168.1.100"
@@ -291,10 +315,13 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
                     type="checkbox"
                     checked={!!editData?.authorized}
                     onChange={(e) =>
-                      setEditData((prev: any) => ({
-                        ...prev,
-                        authorized: e.target.checked,
-                      }))
+                      setEditData((prev: EditMemberData | null) => {
+                        if (!prev) return null;
+                        return {
+                          ...prev,
+                          authorized: e.target.checked,
+                        };
+                      })
                     }
                     className="w-5 h-5 rounded border-input cursor-pointer"
                   />

@@ -25,8 +25,6 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({
 
   const [saving, setSaving] = useState(false);
 
-  const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}`;
-
   useEffect(() => {
     setNetworkData(fetchedNetworkData);
   }, [fetchedNetworkData]);
@@ -50,24 +48,26 @@ const NetworkSettingsSection: FC<NetworkSettingsSectionProps> = ({
     if (!networkData) return;
     setSaving(true);
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(networkData),
         },
-        body: JSON.stringify(networkData),
-      });
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       toast.success("Network settings saved successfully!");
       setNetworkData(json);
-    } catch (e) {
-      toast.error("Failed to save network settings.");
+    } catch (err: any) {
+      toast.error(`Failed to save network settings. error message :${err}`);
     } finally {
       setSaving(false);
     }
-  }, [networkData, setNetworkData]);
+  }, [networkData, setNetworkData, networkId]);
 
   return (
     <div className="container mx-auto my-8 px-4">

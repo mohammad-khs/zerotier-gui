@@ -25,3 +25,8 @@ export interface Member {
   vProto: number;
   vRev: number;
 }
+
+export interface MemberWithMeta extends Member {
+  name?: string;
+  description?: string;
+}

@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
     // Get JWT token from cookies
     const token = await getToken({
       req: request,
-      secret: process.env.NEXTAUTH_SECRET || "your-secret-key",
+      secret: process.env.NEXTAUTH_SECRET,
     });
 
     // If no token exists, redirect to home page

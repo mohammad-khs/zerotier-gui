@@ -42,15 +42,11 @@ export default function NetworkList({ networkList }: NetworkListProps) {
   const handleCreateNetwork = async () => {
     try {
       setIsLoading(true);
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
-      const res = await fetch(`${baseUrl}/controller/network`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/network`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
         },
-        body: JSON.stringify({}),
       });
       if (!res.ok) throw new Error(`Failed to create network ${res.status}`);
       setIsLoading(false);
@@ -68,13 +64,10 @@ export default function NetworkList({ networkList }: NetworkListProps) {
   const handleDeleteNetwork = async (networkId: string) => {
     try {
       setIsLoading(true);
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
-      const res = await fetch(`${baseUrl}/controller/network/${networkId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
         },
       });
       if (!res.ok) throw new Error(`Failed to delete network ${res.status}`);
@@ -107,10 +100,9 @@ export default function NetworkList({ networkList }: NetworkListProps) {
         const results = await Promise.all(
           networkList.map(async (id) => {
             try {
-              const res = await fetch(`${baseUrl}/controller/network/${id}`, {
+              const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${id}`, {
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
                 },
               });
               if (!res.ok) return { id, name: null };

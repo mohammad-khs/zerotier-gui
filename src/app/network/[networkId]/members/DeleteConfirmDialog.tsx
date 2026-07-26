@@ -34,7 +34,7 @@ const DeleteConfirmDialog: FC<DeleteConfirmDialogProps> = ({
     setIsDeleting(true);
     try {
       const res = await fetch(
-        `/api/network/${networkId}/member/${deletingMemberId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}/member/${deletingMemberId}`,
         {
           method: "DELETE",
         },

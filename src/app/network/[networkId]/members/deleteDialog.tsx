@@ -26,15 +26,14 @@ const DeleteDialog: FC<DeleteDialogProps> = ({
   setDeletingMemberId,
   router,
 }) => {
-
   const confirmDelete = async () => {
     if (!deletingMemberId) return;
     try {
       const res = await fetch(
-        `/api/network/${networkId}/member/${deletingMemberId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}/member/${deletingMemberId}`,
         {
           method: "DELETE",
-        }
+        },
       );
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
       toast.success("Member deleted");

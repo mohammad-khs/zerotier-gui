@@ -1,7 +1,7 @@
 "use client";
 
 import React, { FC, useState, useMemo } from "react";
-import { Member } from "@/types/networkMember";
+import { Member, MemberWithMeta } from "@/types/networkMember";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
@@ -33,7 +33,7 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
     return members.filter((member) => {
       const matchesSearch =
         member.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (member as any).name
+        (member as MemberWithMeta).name
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         member.address?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -53,14 +53,12 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
   ) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/controller/network/${networkId}/member/${memberId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}/member/${memberId}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.ZEROTIER_TOKEN}`,
           },
-
           body: JSON.stringify({ authorized }),
         },
       );
