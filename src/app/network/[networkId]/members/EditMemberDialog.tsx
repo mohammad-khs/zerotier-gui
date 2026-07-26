@@ -264,7 +264,7 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
                 </Button>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 py-1">
                 {(editData?.ipList || []).length > 0 ? (
                   (editData?.ipList || []).map((ip: string, idx: number) => (
                     <div key={idx} className="flex gap-2 items-center">
@@ -291,10 +291,10 @@ const EditMemberDialog: FC<EditMemberDialogProps> = ({
                 )}
               </div>
 
-              <p className="text-xs text-muted-foreground mt-2">
+              {/* <p className="text-xs text-muted-foreground mt-2">
                 Supports IPv4 format. You can use CIDR notation (e.g.,
                 192.168.1.0/24)
-              </p>
+              </p> */}
             </div>
           </TabsContent>
 

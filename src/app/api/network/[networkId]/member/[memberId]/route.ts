@@ -8,27 +8,26 @@ export async function GET(
 ) {
   try {
     const { networkId, memberId } = await context.params;
-    
+
     // Check if we're looking for local metadata only
     const url = new URL(request.url);
     const localOnly = url.searchParams.get("local") === "true";
 
     if (localOnly) {
       // Only return local metadata
-      const m = await prisma.member.findFirst({ 
-        where: { memberId, networkId } 
+      const m = await prisma.member.findFirst({
+        where: { memberId, networkId },
       });
-      
+
       if (!m) {
         return NextResponse.json({ found: false }, { status: 404 });
       }
-      
+
       return NextResponse.json({ found: true, data: m }, { status: 200 });
     }
 
     // Full member data from controller + local metadata
-    const baseUrl =
-      process.env.ZEROTIER_CONTROLLER_URL;
+    const baseUrl = process.env.ZEROTIER_CONTROLLER_URL;
     const token = process.env.ZEROTIER_TOKEN;
 
     if (!token) {
@@ -74,14 +73,55 @@ export async function GET(
   }
 }
 
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ networkId: string; memberId: string }> },
+) {
+  try {
+    const { networkId, memberId } = await context.params;
+
+    const baseUrl = process.env.ZEROTIER_CONTROLLER_URL;
+    const token = process.env.ZEROTIER_TOKEN;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "ZEROTIER_TOKEN is not configured" },
+        { status: 500 },
+      );
+    }
+
+    const res = await fetch(
+      `${baseUrl}/controller/network/${networkId}/member/${memberId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to delete member (${res.status})`);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting network:", error);
+    return NextResponse.json(
+      { error: (error as any)?.message || "Failed to delete member" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ networkId: string; memberId: string }> },
 ) {
   try {
     const { networkId, memberId } = await context.params;
-    const baseUrl =
-      process.env.ZEROTIER_CONTROLLER_URL;
+    const baseUrl = process.env.ZEROTIER_CONTROLLER_URL;
     const token = process.env.ZEROTIER_TOKEN;
 
     if (!token) {
@@ -113,7 +153,7 @@ export async function POST(
         },
         select: { memberId: true },
       });
-      
+
       // Build a set of IPs assigned to other members by querying the controller
       const usedIps = new Set<string>();
       for (const m of existingMembers) {
@@ -134,7 +174,7 @@ export async function POST(
           // silently skip on fetch error
         }
       }
-      
+
       // Check if any IP being assigned is already in use
       const conflictingIps = ipAssignments.filter((ip: string) =>
         usedIps.has(ip),

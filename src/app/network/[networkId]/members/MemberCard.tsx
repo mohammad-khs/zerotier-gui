@@ -38,7 +38,7 @@ const MemberCard: FC<MemberCardProps> = ({
   const isRecent = Date.now() - member.creationTime < 24 * 60 * 60 * 1000; // Last 24 hours
 
   return (
-    <Card className="p-5 hover:shadow-lg transition-shadow">
+    <Card className="p-5 hover:shadow-lg transition-all hover:bg-accent">
       <div className="space-y-4">
         {/* Header with auth status and menu */}
         <div className="flex items-start justify-between">
@@ -144,9 +144,11 @@ const MemberCard: FC<MemberCardProps> = ({
                 <Badge
                   key={idx}
                   variant="secondary"
+                  onClick={() => copyToClipboard(ip, "member IP")}
                   className="font-mono text-xs bg-blue-50 text-blue-700 border-blue-200"
                 >
                   {ip}
+                  <Copy className="ml-1 w-3 h-3" />
                 </Badge>
               ))}
             </div>

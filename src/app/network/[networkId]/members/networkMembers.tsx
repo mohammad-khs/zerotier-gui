@@ -28,6 +28,11 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
     "all" | "authorized" | "pending"
   >("all");
 
+  const handleRefresh = () => {
+    router.refresh();
+    toast.success("refreshed");
+  };
+
   // Filter members based on search and status
   const filteredMembers = useMemo(() => {
     return members.filter((member) => {
@@ -160,6 +165,14 @@ const NetworkMembersSection: FC<NetworkMembersSectionProps> = ({
             }
           >
             Pending
+          </Button>
+          <Button
+            variant={"outline"}
+            size="sm"
+            onClick={() => handleRefresh()}
+            className="ml-auto"
+          >
+            refresh
           </Button>
         </div>
       </div>

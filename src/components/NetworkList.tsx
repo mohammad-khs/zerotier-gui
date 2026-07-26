@@ -42,12 +42,15 @@ export default function NetworkList({ networkList }: NetworkListProps) {
   const handleCreateNetwork = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/network`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       if (!res.ok) throw new Error(`Failed to create network ${res.status}`);
       setIsLoading(false);
       router.refresh();
@@ -64,12 +67,15 @@ export default function NetworkList({ networkList }: NetworkListProps) {
   const handleDeleteNetwork = async (networkId: string) => {
     try {
       setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${networkId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       if (!res.ok) throw new Error(`Failed to delete network ${res.status}`);
       setIsLoading(false);
       setIsOpen(false);
@@ -100,14 +106,16 @@ export default function NetworkList({ networkList }: NetworkListProps) {
         const results = await Promise.all(
           networkList.map(async (id) => {
             try {
-              const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${id}`, {
-                headers: {
-                  "Content-Type": "application/json",
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BASE_URL}/api/network/${id}`,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
                 },
-              });
+              );
               if (!res.ok) return { id, name: null };
               const json = await res.json().catch(() => null);
-              // try common shapes, fallback to id
               const name =
                 json?.name ?? json?.config?.name ?? json?.network?.name ?? null;
               return { id, name } as NetworkInfo;
@@ -140,6 +148,12 @@ export default function NetworkList({ networkList }: NetworkListProps) {
       return sortAsc ? aKey.localeCompare(bKey) : bKey.localeCompare(aKey);
     });
   }, [networks, search, sortAsc]);
+
+  // Navigation handler for card click
+  const handleCardClick = (networkId: string) => {
+    handleNetworkClick(networkId);
+    router.push(`/network/${networkId}/settings`);
+  };
 
   return (
     <div className="mt-6 space-y-6">
@@ -182,7 +196,8 @@ export default function NetworkList({ networkList }: NetworkListProps) {
           {filtered.map((network) => (
             <div
               key={network.id}
-              className="rounded-3xl border border-input bg-background p-4 shadow-sm shadow-black/5 transition hover:-translate-y-0.5 hover:border-primary/50"
+              onClick={() => handleCardClick(network.id)}
+              className="group rounded-3xl border border-input bg-background p-4 shadow-sm shadow-black/5 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md cursor-pointer"
             >
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -206,19 +221,24 @@ export default function NetworkList({ networkList }: NetworkListProps) {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Button
-                    size="icon"
+                    size="sm"
                     variant="ghost"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
                       navigator.clipboard.writeText(network.id);
                       toast.success("Network ID copied");
                     }}
+                   
                   >
                     Copy
                   </Button>
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+              <div
+                className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start"
+                onClick={(e) => e.stopPropagation()} // Prevent card click on button container
+              >
                 <Link href={`/network/${network.id}/members`}>
                   <Button
                     variant="outline"
@@ -235,7 +255,10 @@ export default function NetworkList({ networkList }: NetworkListProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleNetworkClick(network.id)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      handleNetworkClick(network.id);
+                    }}
                     title="Settings"
                   >
                     <SquareTerminal className="h-4 w-4" />
@@ -244,7 +267,8 @@ export default function NetworkList({ networkList }: NetworkListProps) {
                 </Link>
 
                 <Button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
                     setDialogNetworkId(network.id);
                     setIsOpen(true);
                   }}
